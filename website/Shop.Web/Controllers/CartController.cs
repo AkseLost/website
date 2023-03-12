@@ -14,7 +14,7 @@ namespace Shop.Web.Controllers
 
         public ShoppingCartController(IFood foodService, ShoppingCart shoppingCart)
         {
-            GraphicPhotoService = GraphicPhotoService;
+            _foodService = foodService;
             _shoppingCart = shoppingCart;
         }
 
@@ -41,10 +41,10 @@ namespace Shop.Web.Controllers
         [Route("/ShoppingCart/Add/{id}/{returnUrl?}")]
         public IActionResult Add(int id, int? amount = 1, string returnUrl = null)
         {
-            var GraphicPhoto = _GraphicPhotoService.GetById(id);
+            var food = _foodService.GetById(id);
             returnUrl = returnUrl.Replace("%2F", "/");
             bool isValidAmount = false;
-            if (GraphicPhoto != null)
+            if (food != null)
             {
                 isValidAmount = _shoppingCart.AddToCart(food, amount.Value);
             }
@@ -54,8 +54,8 @@ namespace Shop.Web.Controllers
 
         public IActionResult Remove(int foodId)
         {
-            var GraphicPhoto = _GraphicPhotoService.GetById(foodId);
-            if (GraphicPhoto != null)
+            var food = _foodService.GetById(foodId);
+            if (food != null)
             {
                 _shoppingCart.RemoveFromCart(food);
             }

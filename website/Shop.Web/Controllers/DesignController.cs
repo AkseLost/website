@@ -11,34 +11,34 @@ using System.Linq;
 
 namespace Shop.Web.Controllers
 {
-	public class GraphicPhotoController : Controller
+	public class FoodController : Controller
 	{
 		private readonly ICategory _categoryService;
 		private readonly IFood _foodService;
 		private readonly Mapper _mapper;
 
-		public GraphicPhotoController(ICategory categoryService, IFood foodService)
+		public FoodController(ICategory categoryService, IFood foodService)
 		{
 			_categoryService = categoryService;
-			_GraphicPhotoService = GraphicPhotoService;
+			_foodService = foodService;
 			_mapper = new Mapper();
 		}
 
-		[Route("Pictures/{id}")]
+		[Route("Foods/{id}")]
 		public IActionResult Index(int id)
 		{
-			var GraphicPhoto = _GraphicPhotoService.GetById(id);
+			var food = _foodService.GetById(id);
 
-			var model = new GraphicPhotoIndexModel
+			var model = new FoodIndexModel
 			{
-				Id = GraphicPhoto.Id,
-				Name = GraphicPhoto.Name,
-				ImageUrl = Graphicphoto.ImageUrl,
-				InStock = GraphicPhoto.InStock,
-				Price = GraphicPhoto.Price,
-				Description = GraphicPhoto.ShortDescription + "\n" + GraphicPhoto.LongDescription,
-				CategoryId = GraphicPhoto.Category.Id,
-				CategoryName = GraphicPhoto.Category.Name
+				Id = food.Id,
+				Name = food.Name,
+				ImageUrl = food.ImageUrl,
+				InStock = food.InStock,
+				Price = food.Price,
+				Description = food.ShortDescription + "\n" + food.LongDescription,
+				CategoryId = food.Category.Id,
+				CategoryName = food.Category.Name
 			};
 
 			return View(model);
@@ -48,7 +48,7 @@ namespace Shop.Web.Controllers
 		public IActionResult New(int categoryId = 0)
 		{
 			GetCategoriesForDropDownList();
-			NewGraphicPhotoModel model = new NewGraphicPhotoModel
+			NewFoodModel model = new NewFoodModel
 			{
 				CategoryId = categoryId
 			};
@@ -56,7 +56,7 @@ namespace Shop.Web.Controllers
 			ViewBag.ActionText = "create";
 			ViewBag.Action = "New";
 			ViewBag.CancelAction = "Topic";
-			ViewBag.SubmitText = "Create A photo";
+			ViewBag.SubmitText = "Create Food";
 			ViewBag.RouteId = categoryId;
 			ViewBag.ControllerName = "Category";
 
@@ -75,7 +75,7 @@ namespace Shop.Web.Controllers
 		{
 			if (ModelState.IsValid && _categoryService.GetById(model.CategoryId.Value) != null)
 			{
-				var GraphicPhoto = _mapper.NewGraphicPhotoModelToGraphicPhoto(model, true, _categoryService);
+				var food = _mapper.NewFoodModelToFood(model, true, _categoryService);
 				_foodService.NewFood(food);
 				return RedirectToAction("Index", new { id = food.Id });
 			}
@@ -85,7 +85,7 @@ namespace Shop.Web.Controllers
 			ViewBag.Action = "New";
 			ViewBag.ControllerName = "Category";
 			ViewBag.CancelAction = "Topic";
-			ViewBag.SubmitText = "Create A photo";
+			ViewBag.SubmitText = "Create Food";
 			ViewBag.RouteId = model.CategoryId;
 
 			return View("CreateEdit", model);
@@ -103,10 +103,10 @@ namespace Shop.Web.Controllers
 
 			GetCategoriesForDropDownList();
 
-			var GraphicPhoto = _GraphicPhotoService.GetById(id);
+			var food = _foodService.GetById(id);
 			if (food != null)
 			{
-				var model = _mapper.GraphicPhotoToNewGraphicPhotoModel(food);
+				var model = _mapper.FoodToNewFoodModel(food);
 				return View("CreateEdit", model);
 			}
 
@@ -119,8 +119,8 @@ namespace Shop.Web.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-				var GraphicPhoto = _mapper.NewGraphicPhotoModelToGraphicPhoto(model, false, _categoryService);
-				_GraphicPhotoService.EditFood(food);
+				var food = _mapper.NewFoodModelToFood(model, false, _categoryService);
+				_foodService.EditFood(food);
 				return RedirectToAction("Index", new { id = model.Id });
 			}
 
@@ -128,7 +128,7 @@ namespace Shop.Web.Controllers
 			ViewBag.Action = "Edit";
 			ViewBag.CancelAction = "Index";
 			ViewBag.SubmitText = "Save Changes";
-			ViewBag.ControllerName = "Photos";
+			ViewBag.ControllerName = "Food";
 			ViewBag.RouteId = model.Id;
 			GetCategoriesForDropDownList();
 
@@ -138,8 +138,8 @@ namespace Shop.Web.Controllers
 		[Authorize(Roles = "Admin")]
 		public IActionResult Delete(int id)
 		{
-			var categoryId = GraphicPhotoService.GetById(id).CategoryId;
-			_GraphicPhotoService.DeleteFood(id);
+			var categoryId = _foodService.GetById(id).CategoryId;
+			_foodService.DeleteFood(id);
 
 			return RedirectToAction("Topic", "Category", new { id = categoryId, searchQuery = "" });
 		}
